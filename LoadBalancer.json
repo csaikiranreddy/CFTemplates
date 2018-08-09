@@ -1,0 +1,251 @@
+{
+    "Description": "This template creates a Load Balancer.",
+    "Parameters": {
+        "Vpc": {
+            "Description": "Please enter the Name of VPC for the LB",
+            "Type": "String",
+            "Default": "VPCID"
+        },
+        "Subnet1": {
+            "Description": "Please enter the Name of subnet in the first Availability Zone",
+            "Type": "String",
+            "Default": "Subnet1"
+        },
+        "Subnet2": {
+            "Description": "Please enter the Name of subnet in the second Availability Zone",
+            "Type": "String",
+            "Default": "Subnet2"
+        }
+    },
+    "Resources": {
+        "LoadBalancerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Loadbalancer Allowed Ports",
+                "VpcId": {
+                    "Ref": "Vpc"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "9bda82fa-ff6d-411f-a6e7-a51460051c30"
+                }
+            }
+        },
+        "LoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+                "Scheme": "internet-facing",
+                "Name": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "AWS::StackName"
+                            },
+                            "LoadBalancer"
+                        ]
+                    ]
+                },
+                "Type": "application",
+                "Subnets": [
+                    {
+                        "Ref": "Subnet1"
+                    },
+                    {
+                        "Ref": "Subnet2"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "LoadBalancerSecurityGroup"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "566275e0-f13e-4b45-a491-0006729c8b4e"
+                }
+            }
+        },
+        "TargetGroupService1": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Name": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "AWS::StackName"
+                            },
+                            "TargetGroupService1"
+                        ]
+                    ]
+                },
+                "Port": 80,
+                "Protocol": "HTTP",
+                "HealthCheckPath": "/server/rest/info/healthCheck?f=json",
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "03e92f30-8d4f-4a86-ac7a-d770fc9fe36f"
+                }
+            }
+        },
+        "TargetGroupService2": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Name": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "AWS::StackName"
+                            },
+                            "TargetGroupService2"
+                        ]
+                    ]
+                },
+                "Port": 80,
+                "Protocol": "HTTP",
+                "HealthCheckPath": "/server/rest/info/healthCheck?f=json",
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "37ef9663-ed23-4582-8d5a-ee9278758b06"
+                }
+            }
+		},
+		
+		"Listener": {
+			"Type": "AWS::ElasticLoadBalancingV2::Listener",
+			"Properties": {
+				"DefaultActions": [
+					{
+						"Type": "forward",
+						"TargetGroupArn": {
+							"Ref": "TargetGroupService1"
+						}
+					}
+				],
+				"LoadBalancerArn": {
+					"Ref": "LoadBalancer"
+				},
+				"Port": "80",
+				"Protocol": "HTTP"
+			}
+		},
+		"ListenerRuleService1": {
+			"Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+			"Properties": {
+				"Actions": [
+					{
+						"TargetGroupArn": {
+							"Ref": "TargetGroupService1"
+						},
+						"Type": "forward"
+					}
+				],
+				"Conditions": [
+					{
+						"Field": "path-pattern",
+						"Values": [
+							"/server/*"
+						]
+					}
+				],
+				"ListenerArn": {
+					"Ref": "Listener"
+				},
+				"Priority": 1
+			}
+		},
+		"ListenerRuleService2": {
+		  "Type" : "AWS::ElasticLoadBalancingV2::ListenerRule",
+		  "Properties" : {
+			"Actions" : [
+			  {
+				"TargetGroupArn" : {"Ref": "TargetGroupService2"},
+				"Type" : "forward"
+			  }
+			],
+			"Conditions" : [
+			  {
+				"Field" : "path-pattern",
+				"Values" : [ "/server/*" ]
+			  }
+			],
+			"ListenerArn" : {"Ref": "Listener"},
+			"Priority" : 2
+		}  }
+		},
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "37ef9663-ed23-4582-8d5a-ee9278758b06": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "03e92f30-8d4f-4a86-ac7a-d770fc9fe36f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 450,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "9bda82fa-ff6d-411f-a6e7-a51460051c30": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 360,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "566275e0-f13e-4b45-a491-0006729c8b4e": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 50,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "9bda82fa-ff6d-411f-a6e7-a51460051c30"
+                ]
+            }
+        }
+    }
+}
