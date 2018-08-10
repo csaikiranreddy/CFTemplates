@@ -4,10 +4,10 @@
 		"EnvironmentName": {
 			"Description": "Please enter a name for this VPC",
 			"Type": "String",
-			"Default": "Blue",
+			"Default": "Dev/Test",
 			"AllowedValues": [
-				"Blue",
-				"Test"
+				"Prod",
+				"Dev/Test"
 				]
 		},
 		"VpcCIDR": {
@@ -413,19 +413,19 @@
 						"IpProtocol": "tcp",
 						"FromPort": "22",
 						"ToPort": "22",
-						"CidrIp": "198.102.62.250/32"
+						"CidrIp": "198.**.**.250/32"
 					},
 					{
 						"IpProtocol": "tcp",
 						"FromPort": "80",
 						"ToPort": "80",
-						"CidrIp": "198.102.62.250/32"
+						"CidrIp": "198.**.**.250/32"
 					},
 					{
 						"IpProtocol": "tcp",
 						"FromPort": "443",
 						"ToPort": "443",
-						"CidrIp": "198.102.62.250/32"
+						"CidrIp": "198.**.**.250/32"
 					}
 				],
 				"Tags": [
@@ -468,7 +468,7 @@
 				"Tags": [
 					{
 						"Key": "Name",
-						"Value": "skarra"
+						"Value": "Instance"
 					}
 				]
 			}
